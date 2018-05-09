@@ -1,0 +1,55 @@
+/* Red5 Demo CSS */
+
+div {
+	font-family: Arial, Helvetica, sans-serif;
+	
+}
+
+ul {
+	padding: 20px;
+	background-color: #FEFEFE;
+}
+
+.container {
+	grid-template-columns: auto auto;
+	display: grid;
+}
+.content_chat {
+	
+}
+
+.content_debug {
+}
+
+.userEntry {
+	width: 100%;
+	max-width: 100%;
+	display: flex;
+}
+
+.chat {
+	height: 400px;
+	overflow-y: scroll;
+}
+
+.input {
+	width: 100%;
+}
+
+.chatMessage{
+	border: 2px solid;
+	border-radius: 5px;
+	list-style: none;
+	padding: 10px;
+	margin: 20px;
+}
+
+.user{
+	background-color: lightblue;
+	text-align: right;
+}
+
+.bot{
+	background-color: lightsalmon;
+	text-align: left;
+}
