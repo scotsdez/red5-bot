@@ -13,16 +13,19 @@ var intentArray = [];
 // define intents and aliases
 const intent_hi = { name: "hi", selectors: ["hi","hello","hey","yo","sup","what's up"], tokenise: true };
 const intent_coverme = { name: "cover me", selectors: ["need cover","cover me","need backup","help","cover","protect me", "all over me", "I'm taking damage"], tokenise: false };
-const intent_attackmytarget = { name: "attack my target", selectors: ["attack my target","destroy","kill", "attack "], tokenise: false };
+const intent_attackmytarget = { name: "attack my target", selectors: ["attack my target","destroy ","kill ", "attack ", "engage "], tokenise: false };
 const intent_escortmytarget = { name: "escort my target", selectors: ["escort my target","protect target","guard ", "escort ", "protect the", "protect that"], tokenise: false };
 
 const worldInfo = { playerName: "Red leader", 
 	friendlyIFF: "rebel", 
 	activeShips:  [
-		{ name: "Red 1", IFF: "rebel", shiptype: "X-Wing" },
+		{ name: "Red 1", IFF: "rebel", shiptype: "X-Wing"},
 		{ name: "Red 5", IFF: "rebel", shiptype: "X-Wing"},
 		{ name: "Alpha 1", IFF: "imperial", shiptype: "TIE-Fighter"},
-		{ name: "Alpha 2", IFF: "imperial", shiptype: "TIE-Fighter"}
+		{ name: "Alpha 2", IFF: "imperial", shiptype: "TIE-Fighter"},
+		{ name: "Delta 1", IFF: "imperial", shiptype: "TIE-Bomber"},
+		{ name: "Delta 2", IFF: "imperial", shiptype: "TIE-Bomber"},
+		{ name: "Immortal", IFF: "imperial", shiptype: "ISD"}
 		] 
 	};
 
@@ -30,10 +33,18 @@ const unmatchedIntent = "I didn't understand that message.";
 
 const intent_coverme_replies = { message: ["Roger, I'm on my way.","Got it, I'm on him!","I've got your back.","Stay calm, I'm plotting an intercept course!","On it, PLAYERNAME!"] };
 const intent_attack_replies = { message: ["Attacking your target.", "Roger that, engaging target.", "Setting up attack run.", "Okay, PLAYERNAME, attacking your target.", "Attacking your target, PLAYERNAME."] };
-const intent_attack_replies_spec = { message: ["Attacking TARGETNAME.", "Roger that, engaging TARGETNAME.", "Got it, attacking TARGETNAME.", "Acknowledged, engaging TARGETNAME."] };
+const intent_attack_replies_spec = { message: ["Attacking TARGETTYPE TARGETNAME.", "Roger that, engaging TARGETTYPE TARGETNAME.", "Got it, attacking TARGETTYPE TARGETNAME.", "Acknowledged, engaging TARGETTYPE TARGETNAME."] };
 const intent_attack_replies_no = { message: ["Are you crazy, they're on our side!", "No way, that's a friendly!"] };
 const intent_attack_replies_notfound = { message: ["I'm not sure which target you mean, PLAYERNAME.", "I can't see that target, are you sure?", "I'm sorry, PLAYERNAME, which target did you mean?"] };
 const intent_escort_replies = { message: ["Acknowledged, escorting target.", "Assuming escort position.", "I'll look after the target."] };
+
+const shipAliases = { 
+	"X-Wing" : ["x-w","x wing", "x w"],
+	"A-Wing" : ["a-w","a wing", "a w"],
+	"TIE-Fighter" : ["t-f","tie fighter", "tie/ln", "tie ln", "tie l n"],
+	"TIE-Bomber" : ["t-b","tie bomber", "tie/b", "bomber"],
+	"ISD" : ["star destroyer","destroyer", "isd1", "isdii"]
+};
 
 function init() {
 	// build intent array
@@ -87,8 +98,10 @@ function processMessage(message) {
 			displayChatMessage(returnedMessage);
 		}
 		if(detectedIntent == "hi") {
-			returnedMessage = { sender: "bot", content: "I'm Red 5, a prototype AI wingman demo." };
+			returnedMessage = { sender: "bot", content: "I'm " + botName + ", a prototype AI wingman demo." };
 			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+			displayChatMessage(returnedMessage);
+			returnedMessage = { sender: "bot", content: "Try asking me to attack or escort a target, or to cover you." };
 			displayChatMessage(returnedMessage);
 		}
 		else if(detectedIntent == "cover me") {
@@ -103,6 +116,7 @@ function processMessage(message) {
 			var spec = false;
 			var friendly = false;
 			var targetName = "";
+			var targetType = "";
 			var generic = false;
 			
 			var msgContent = message.content.toLowerCase();
@@ -115,12 +129,23 @@ function processMessage(message) {
 					}
 					spec = true;
 					targetName = worldInfo.activeShips[i].name;
+					targetType = worldInfo.activeShips[i].shiptype;
 				}
 			}
 			
 			if(!spec) {
 				if(msgContent.includes("my ") || msgContent.includes(" target") ) {
 					generic = true;
+				}
+				
+				// determine if ship type was given
+				var shipTypes = getWorldShipTypes();
+				for(var i=0;i<shipTypes.length;i++) {
+				//	for(var j=0;i<shipTypes[i].length;j++) {
+						if(msgContent.includes(shipTypes[i].toLowerCase())) {
+							targetType = shipTypes[i];
+						}
+				//	}
 				}
 			}
 
@@ -141,6 +166,7 @@ function processMessage(message) {
 				
 				returnedMessage = { sender: "bot", content: intent_attack_replies_spec.message[randomIndex] };
 				returnedMessage.content = returnedMessage.content.replace("TARGETNAME", targetName);
+				returnedMessage.content = returnedMessage.content.replace("TARGETTYPE", targetType);
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
 				displayChatMessage(returnedMessage);
 			}
@@ -201,6 +227,26 @@ function detectIntent(message) {
 	
 	// otherwise return undefined if no match
 	return undefined;
+}
+
+function getWorldShipTypes() {
+	var shipTypes = [];
+	for(var i=0;i < worldInfo.activeShips.length;i++) {
+		if(!shipTypes.includes(worldInfo.activeShips[i].shiptype) ) {
+			shipTypes.push(worldInfo.activeShips[i].shiptype);
+		}
+	}
+	var updatedShipTypes = [];
+	for(var i=0;i < shipTypes.length;i++) {
+		updatedShipTypes.push(shipTypes[i]);
+		
+		if(shipAliases.hasOwnProperty(shipTypes[i]) ) {
+			for(var j=0; j < shipAliases[shipTypes[i]].length; j++){
+				shipTypes.push(shipAliases[shipTypes[i]][j]);
+			}
+		}
+	}
+	return shipTypes;
 }
 
 // on document load, initialise bot (JQuery 3.0+ syntax)
