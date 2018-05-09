@@ -244,8 +244,10 @@ function processMessage(message) {
 
 			returnedMessage = { sender: "bot", content: intent_escort_replies.message[randomIndex] };
 			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
-			displayChatMessage(returnedMessage);
+			
 			currentActivity = "Escorting player's target";	
+			
+			displayChatMessage(returnedMessage);
 		}
 		else if(detectedIntent == "ignore my target") {
 			// select random response
