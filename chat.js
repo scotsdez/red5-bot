@@ -12,6 +12,7 @@ Description: 	Handles front end chat messages.
 const inputFieldName = '#chatInput';
 const playerNameInput = '#playerNameInput';
 const worldStateView = '#worldstate';
+const currentOrderView = '#currentAction';
 
 function submitButtonPress() {
 	var newMsg = { sender: "user", content: $(inputFieldName).val() };
@@ -30,6 +31,8 @@ function submitButtonPress() {
 function displayChatMessage(message) {
 	$("#chat").append("<li class='chatMessage " + message.sender + "'>" + message.content + "</li>");
 	$('#chat').animate({"scrollTop": $('#chat')[0].scrollHeight}, "fast");
+	
+	$(currentOrderView).val(getCurrentOrder());
 }
 
 function updatePlayerNameInput() {

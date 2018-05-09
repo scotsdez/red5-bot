@@ -31,6 +31,11 @@ ul {
 	display: block;
 }
 
+#currentAction {
+	width: 100%;
+	display: block;
+}
+
 .userEntry {
 	width: 100%;
 	max-width: 100%;

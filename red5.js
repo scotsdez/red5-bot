@@ -15,6 +15,11 @@ const intent_hi = { name: "hi", selectors: ["hi","hello","hey","yo","sup","what'
 const intent_coverme = { name: "cover me", selectors: ["need cover","cover me","need backup","help","cover","protect me", "all over me", "I'm taking damage"], tokenise: false };
 const intent_attackmytarget = { name: "attack my target", selectors: ["attack my target","destroy ","kill ", "attack ", "engage "], tokenise: false };
 const intent_escortmytarget = { name: "escort my target", selectors: ["escort my target","protect target","guard ", "escort ", "protect the", "protect that"], tokenise: false };
+const intent_ignoremytarget = { name: "ignore my target", selectors: ["ignore my target","ignore target","ignore ", "leave target", "abort attack", "abandon attack", "stop attack"], tokenise: false };
+const intent_waitfororders = { name: "wait for orders", selectors: ["wait for orders","wait there","wait ", "stop ", "halt "], tokenise: false };
+const intent_evasive = { name: "evasive manoeuvres", selectors: ["evasive manoeuvres","evasive action","dive", "swerve", "jink", "weave", "escape"], tokenise: false };
+
+var currentActivity = "";
 
 const worldInfo = { playerName: "Red leader", 
 	friendlyIFF: "rebel", 
@@ -38,6 +43,9 @@ const intent_attack_replies_spec = { message: ["Attacking TARGETTYPE TARGETNAME.
 const intent_attack_replies_no = { message: ["Are you crazy, they're on our side!", "No way, that's a friendly!"] };
 const intent_attack_replies_notfound = { message: ["I'm not sure which target you mean, PLAYERNAME.", "I can't see that target, are you sure?", "I'm sorry, PLAYERNAME, which target did you mean?"] };
 const intent_escort_replies = { message: ["Acknowledged, escorting target.", "Assuming escort position.", "I'll look after the target."] };
+const intent_ignore_replies = { message: ["Acknowledged, ignoring target.", "Ignoring your target, PLAYERNAME.", "Roger that, ignoring target.", "It's all yours, PLAYERNAME."] };
+const intent_wait_replies = { message: ["Acknowledged, waiting for further orders.", "Waiting for further orders.", "Okay PLAYERNAME, waiting for further orders.", "I'll hang tight."] };
+const intent_evasive_replies = { message: ["I know just the manoeuvre to get out of this one!", "Evading!", "Let's see them try and match this!", "I hope this buckethead has a strong stomach..."] };
 
 const shipAliases = { 
 	"X-Wing" : ["x-w","x wing", "x w"],
@@ -53,6 +61,9 @@ function init() {
 	intentArray.push(tokeniseIntent(intent_coverme));	
 	intentArray.push(tokeniseIntent(intent_attackmytarget));
 	intentArray.push(tokeniseIntent(intent_escortmytarget));
+	intentArray.push(tokeniseIntent(intent_ignoremytarget));
+	intentArray.push(tokeniseIntent(intent_waitfororders));
+	intentArray.push(tokeniseIntent(intent_evasive));
 	
 	console.log("Red5_init: Initialised " + intentArray.length + " intents.");
 }
@@ -111,6 +122,9 @@ function processMessage(message) {
 
 			returnedMessage = { sender: "bot", content: intent_coverme_replies.message[randomIndex] };
 			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+			
+			currentActivity = "Covering player";
+			
 			displayChatMessage(returnedMessage);
 		}
 		else if(detectedIntent == "attack my target") {
@@ -169,6 +183,9 @@ function processMessage(message) {
 				returnedMessage.content = returnedMessage.content.replace("TARGETNAME", targetName);
 				returnedMessage.content = returnedMessage.content.replace("TARGETTYPE", targetType);
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+				
+				currentActivity = "Attacking player's target by name: " +  targetName;
+				
 				displayChatMessage(returnedMessage);
 			}
 			// generic target type selected only
@@ -178,6 +195,9 @@ function processMessage(message) {
 				returnedMessage = { sender: "bot", content: intent_attack_replies_typeonly.message[randomIndex] };
 				returnedMessage.content = returnedMessage.content.replace("TARGETTYPE", targetType);
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+				
+				currentActivity = "Attacking player's target by type: " +  targetType;
+				
 				displayChatMessage(returnedMessage);
 			}
 			else if(generic) {
@@ -186,6 +206,9 @@ function processMessage(message) {
 
 				returnedMessage = { sender: "bot", content: intent_attack_replies.message[randomIndex] };
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+							
+				currentActivity = "Attacking player's target";			
+
 				displayChatMessage(returnedMessage);				
 			}
 			// if we are here, we didn't determine a generic response, so the player
@@ -205,6 +228,40 @@ function processMessage(message) {
 
 			returnedMessage = { sender: "bot", content: intent_escort_replies.message[randomIndex] };
 			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+			displayChatMessage(returnedMessage);
+			currentActivity = "Escorting player's target";	
+		}
+		else if(detectedIntent == "ignore my target") {
+			// select random response
+			var randomIndex = Math.floor(Math.random() * intent_ignore_replies.message.length);
+
+			returnedMessage = { sender: "bot", content: intent_ignore_replies.message[randomIndex] };
+			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+			
+			currentActivity = "Ignoring player's target";	
+			
+			displayChatMessage(returnedMessage);
+		}
+		else if(detectedIntent == "wait for orders") {
+			// select random response
+			var randomIndex = Math.floor(Math.random() * intent_wait_replies.message.length);
+
+			returnedMessage = { sender: "bot", content: intent_wait_replies.message[randomIndex] };
+			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+			
+			currentActivity = "Waiting for orders";	
+			
+			displayChatMessage(returnedMessage);
+		}
+		else if(detectedIntent == "evasive manoeuvres") {
+			// select random response
+			var randomIndex = Math.floor(Math.random() * intent_evasive_replies.message.length);
+
+			returnedMessage = { sender: "bot", content: intent_evasive_replies.message[randomIndex] };
+			returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+			
+			currentActivity = "Evasive manoeuvres";	
+			
 			displayChatMessage(returnedMessage);
 		}
 	}
@@ -237,6 +294,10 @@ function detectIntent(message) {
 	
 	// otherwise return undefined if no match
 	return undefined;
+}
+
+function getCurrentOrder() {
+	return currentActivity;
 }
 
 function getWorldShipTypes() {
