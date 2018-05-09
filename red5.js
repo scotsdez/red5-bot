@@ -16,7 +16,7 @@ const intent_coverme = { name: "cover me", selectors: ["need cover","cover me","
 const intent_attackmytarget = { name: "attack my target", selectors: ["attack my target","destroy ","kill ", "attack ", "engage "], tokenise: false };
 const intent_escortmytarget = { name: "escort my target", selectors: ["escort my target","protect target","guard ", "escort ", "protect the", "protect that"], tokenise: false };
 const intent_ignoremytarget = { name: "ignore my target", selectors: ["ignore my target","ignore target","ignore ", "leave target", "abort attack", "abandon attack", "stop attack"], tokenise: false };
-const intent_waitfororders = { name: "wait for orders", selectors: ["wait for orders","wait there","wait ", "stop ", "halt "], tokenise: false };
+const intent_waitfororders = { name: "wait for orders", selectors: ["wait for orders","wait there","wait ", "stop ", "halt ", "hold "], tokenise: false };
 const intent_evasive = { name: "evasive manoeuvres", selectors: ["evasive manoeuvres","evasive action","dive", "swerve", "jink", "weave", "escape"], tokenise: false };
 
 var currentActivity = "";

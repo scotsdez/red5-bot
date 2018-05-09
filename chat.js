@@ -29,7 +29,7 @@ function submitButtonPress() {
 * content (string) - message contents
 */
 function displayChatMessage(message) {
-	$("#chat").append("<li class='chatMessage " + message.sender + "'>" + message.content + "</li>");
+	$("#chat").append("<li class='chatLi'><div class='chatbubble_" + message.sender + "'></div><div class='chatMessage " + message.sender + "'>" + message.content + "</div></li>");
 	$('#chat').animate({"scrollTop": $('#chat')[0].scrollHeight}, "fast");
 	
 	$(currentOrderView).val(getCurrentOrder());

@@ -52,20 +52,50 @@ ul {
 	width: 100%;
 }
 
+.chatLi {
+	list-style: none;
+}
+
 .chatMessage{
-	border: 2px solid;
+	border: 1px solid;
 	border-radius: 5px;
 	list-style: none;
 	padding: 10px;
-	margin: 20px;
+	margin-bottom: 20px;
 }
 
 .user{
 	background-color: lightblue;
 	text-align: right;
+	margin-right: 50px;
 }
 
 .bot{
 	background-color: lightsalmon;
 	text-align: left;
+	margin-left:50px;
+}
+
+.chatbubble_user{
+	width: 45px;
+	height: 45px;
+	text-align: right;
+	float: right;
+	background-color: lightblue;
+	border-radius: 25px;
+	vertical-align: middle;
+	border: 1px solid;
+	display: block;
+}
+
+.chatbubble_bot{
+	width: 45px;
+	height: 45px;
+	text-align: left;
+	float: left;
+	background-color: lightsalmon;
+	border-radius: 25px;
+	vertical-align: middle;
+	border: 1px solid;
+	display: block;
 }
