@@ -29,10 +29,10 @@ const worldInfo = { playerName: "Red leader",
 const unmatchedIntent = "I didn't understand that message.";
 
 const intent_coverme_replies = { message: ["Roger, I'm on my way.","Got it, I'm on him!","I've got your back.","Stay calm, I'm plotting an intercept course!","On it, PLAYERNAME!"] };
-const intent_attack_replies = { message: ["Attacking target.", "Roger that, engaging target.", "Setting up attack run.", "Okay, PLAYERNAME, attacking your target.", "Attacking your target, PLAYERNAME."] };
+const intent_attack_replies = { message: ["Attacking your target.", "Roger that, engaging target.", "Setting up attack run.", "Okay, PLAYERNAME, attacking your target.", "Attacking your target, PLAYERNAME."] };
 const intent_attack_replies_spec = { message: ["Attacking TARGETNAME.", "Roger that, engaging TARGETNAME.", "Got it, attacking TARGETNAME.", "Acknowledged, engaging TARGETNAME."] };
 const intent_attack_replies_no = { message: ["Are you crazy, they're on our side!", "No way, that's a friendly!"] };
-const intent_attack_replies_notfound = { message: ["I'm sorry, I don't see that target on my scope.", "I can't see that target, are you sure?", "I'm sorry, PLAYERNAME, which target did you mean?"] };
+const intent_attack_replies_notfound = { message: ["I'm not sure which target you mean, PLAYERNAME.", "I can't see that target, are you sure?", "I'm sorry, PLAYERNAME, which target did you mean?"] };
 const intent_escort_replies = { message: ["Acknowledged, escorting target.", "Assuming escort position.", "I'll look after the target."] };
 
 function init() {
@@ -47,6 +47,10 @@ function init() {
 
 function getWorldState() {
 	return JSON.stringify(worldInfo);
+}
+
+function updatePlayerName(name) {
+	worldInfo.playerName = name;
 }
 
 function tokeniseIntent(intent) {
@@ -99,6 +103,7 @@ function processMessage(message) {
 			var spec = false;
 			var friendly = false;
 			var targetName = "";
+			var generic = false;
 			
 			var msgContent = message.content.toLowerCase();
 			
@@ -110,6 +115,12 @@ function processMessage(message) {
 					}
 					spec = true;
 					targetName = worldInfo.activeShips[i].name;
+				}
+			}
+			
+			if(!spec) {
+				if(msgContent.includes("my ") || msgContent.includes(" target") ) {
+					generic = true;
 				}
 			}
 
@@ -133,13 +144,23 @@ function processMessage(message) {
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
 				displayChatMessage(returnedMessage);
 			}
-			else {
+			else if(generic) {
 				// select random response
 				randomIndex = Math.floor(Math.random() * intent_attack_replies.message.length);
 
 				returnedMessage = { sender: "bot", content: intent_attack_replies.message[randomIndex] };
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
 				displayChatMessage(returnedMessage);				
+			}
+			// if we are here, we didn't determine a generic response, so the player
+			// may have specified a non-existent target.
+			else {
+				// select random response
+				randomIndex = Math.floor(Math.random() * intent_attack_replies_notfound.message.length);
+
+				returnedMessage = { sender: "bot", content: intent_attack_replies_notfound.message[randomIndex] };
+				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+				displayChatMessage(returnedMessage);		
 			}
 		}
 		else if(detectedIntent == "escort my target") {

@@ -10,6 +10,8 @@ Description: 	Handles front end chat messages.
 */
 
 const inputFieldName = '#chatInput';
+const playerNameInput = '#playerNameInput';
+const worldStateView = '#worldstate';
 
 function submitButtonPress() {
 	var newMsg = { sender: "user", content: $(inputFieldName).val() };
@@ -30,6 +32,12 @@ function displayChatMessage(message) {
 	$('#chat').animate({"scrollTop": $('#chat')[0].scrollHeight}, "fast");
 }
 
+function updatePlayerNameInput() {
+	var newPlayerName = $(playerNameInput).val();
+	updatePlayerName(newPlayerName);
+	$(worldStateView).val(getWorldState());
+}
+
 $(document).ready(function(){
 	$(inputFieldName).keypress(function(e){
 	  if(e.keyCode==13)	{
@@ -37,6 +45,13 @@ $(document).ready(function(){
 	  }
 	});
 	
-	$('#worldstate').val(getWorldState());
+	$(playerNameInput).keypress(function(e){
+	  if(e.keyCode==13)	{
+		updatePlayerNameInput();
+	  }
+	});
 	
+	$(worldStateView).val(getWorldState());
+	var worldState = JSON.parse(getWorldState());
+	$(playerNameInput).val(worldState.playerName);
 });
