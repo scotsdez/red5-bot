@@ -21,11 +21,13 @@ const intent_evasive = { name: "evasive manoeuvres", selectors: ["evasive manoeu
 
 var currentActivity = "";
 
-const worldInfo = { playerName: "Red leader", 
+const worldInfo = { playerName: "Red 2", 
 	friendlyIFF: "rebel", 
 	activeShips:  [
 		{ name: "Red 1", IFF: "rebel", shiptype: "X-Wing"},
+		{ name: "Red 2", IFF: "rebel", shiptype: "X-Wing"},
 		{ name: "Red 5", IFF: "rebel", shiptype: "X-Wing"},
+		{ name: "Green 1", IFF: "rebel", shiptype: "A-Wing"},
 		{ name: "Alpha 1", IFF: "imperial", shiptype: "TIE-Fighter"},
 		{ name: "Alpha 2", IFF: "imperial", shiptype: "TIE-Fighter"},
 		{ name: "Delta 1", IFF: "imperial", shiptype: "TIE-Bomber"},
@@ -135,6 +137,10 @@ function processMessage(message) {
 			var generic = false;
 			
 			var msgContent = message.content.toLowerCase();
+			// replace instances of bot name with blank string.
+			// i.e. "Okay, Red 5, ..."
+			msgContent = msgContent.replace(botName.toLowerCase(), "");
+			console.log(msgContent);
 			
 			// determine if target exists in world state
 			for(var i=0;i<worldInfo.activeShips.length;i++) {
@@ -168,11 +174,21 @@ function processMessage(message) {
 			
 			// if target is a friendly
 			if(friendly) {
-				randomIndex = Math.floor(Math.random() * intent_attack_replies_no.message.length);
-				
-				returnedMessage = { sender: "bot", content: intent_attack_replies_no.message[randomIndex] };
-				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
-				displayChatMessage(returnedMessage);
+				if(targetName.toLowerCase() == worldInfo.playerName.toLowerCase()) {
+					returnedMessage = { sender: "bot", content: "Are you crazy, I'm not going to attack you!" };
+					displayChatMessage(returnedMessage);
+				}
+				else if(targetName.toLowerCase() == botName.toLowerCase()) {
+					returnedMessage = { sender: "bot", content: "That's me..." };
+					displayChatMessage(returnedMessage);
+				}
+				else {
+					randomIndex = Math.floor(Math.random() * intent_attack_replies_no.message.length);
+					
+					returnedMessage = { sender: "bot", content: intent_attack_replies_no.message[randomIndex] };
+					returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+					displayChatMessage(returnedMessage);					
+				}
 			}
 			
 			// if target is specific and exists
