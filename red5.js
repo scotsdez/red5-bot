@@ -33,6 +33,7 @@ const unmatchedIntent = "I didn't understand that message.";
 
 const intent_coverme_replies = { message: ["Roger, I'm on my way.","Got it, I'm on him!","I've got your back.","Stay calm, I'm plotting an intercept course!","On it, PLAYERNAME!"] };
 const intent_attack_replies = { message: ["Attacking your target.", "Roger that, engaging target.", "Setting up attack run.", "Okay, PLAYERNAME, attacking your target.", "Attacking your target, PLAYERNAME."] };
+const intent_attack_replies_typeonly = { message: ["Attacking TARGETTYPE.", "Roger that, engaging TARGETTYPE.", "Setting up attack run.", "Okay, PLAYERNAME, attacking TARGETTYPE.", "Attacking TARGETTYPE, PLAYERNAME."] };
 const intent_attack_replies_spec = { message: ["Attacking TARGETTYPE TARGETNAME.", "Roger that, engaging TARGETTYPE TARGETNAME.", "Got it, attacking TARGETTYPE TARGETNAME.", "Acknowledged, engaging TARGETTYPE TARGETNAME."] };
 const intent_attack_replies_no = { message: ["Are you crazy, they're on our side!", "No way, that's a friendly!"] };
 const intent_attack_replies_notfound = { message: ["I'm not sure which target you mean, PLAYERNAME.", "I can't see that target, are you sure?", "I'm sorry, PLAYERNAME, which target did you mean?"] };
@@ -166,6 +167,15 @@ function processMessage(message) {
 				
 				returnedMessage = { sender: "bot", content: intent_attack_replies_spec.message[randomIndex] };
 				returnedMessage.content = returnedMessage.content.replace("TARGETNAME", targetName);
+				returnedMessage.content = returnedMessage.content.replace("TARGETTYPE", targetType);
+				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
+				displayChatMessage(returnedMessage);
+			}
+			// generic target type selected only
+			else if(targetType) {
+				randomIndex = Math.floor(Math.random() * intent_attack_replies_typeonly.message.length);
+				
+				returnedMessage = { sender: "bot", content: intent_attack_replies_typeonly.message[randomIndex] };
 				returnedMessage.content = returnedMessage.content.replace("TARGETTYPE", targetType);
 				returnedMessage.content = returnedMessage.content.replace("PLAYERNAME", worldInfo.playerName);
 				displayChatMessage(returnedMessage);
